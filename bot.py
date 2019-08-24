@@ -62,7 +62,7 @@ def create(bot, update, args, chat_data, job_queue):
         with open(path + filename, 'w') as outfile:
             json.dump(new_dict, outfile)
 
-        new_job = job_queue.run_repeating(get_secret_friend, 10, context=chat_id)
+        new_job = job_queue.run_once(get_secret_friend, 10, context=chat_id)
         update.message.reply_text(f'Grupo creado existosamente! El sorteo se hara el {due}')
 
     except (IndexError, ValueError):
@@ -153,20 +153,22 @@ def finish(bot, update, args):
         update.message.reply_text(f'El grupo ya está cerrado (sorteo el {date}) >:|')
 
 def get_secret_friend(bot, job):
+    print("helo")
     """Send the alarm message."""
     group_id = abs(job.context)
     filename = f"group_{group_id}.json"
     run_secret_friend = False
     with open("data/" + filename) as json_file:
         data = json.load(json_file)
-        if dt.datetime.now() >= dt.datetime.strptime(data["date"] + " " + data["time"], '%d-%m-%Y %H:%M'):
+        #if dt.datetime.now() >= dt.datetime.strptime(data["date"] + " " + data["time"], '%d-%m-%Y %H:%M'):
+        if data["members"] > 1:
             run_secret_friend = True
     if run_secret_friend:
         job.schedule_removal()
         secret_friend(filename)
-        bot.send_message(job.context, text='Beep!')
+        bot.send_message(job.context, text='Amikes secretos asignados!')
     else:
-        bot.send_message(job.context, text='NoBeep!')
+        bot.send_message(job.context, text='No hay suficiente personas :(')
 
 
 def test_secret_friend(bot, update, args, chat_data, job_queue):
