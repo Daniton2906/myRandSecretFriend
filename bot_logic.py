@@ -30,6 +30,12 @@ def time_verification(time):
     except:
        return False
 
+def datetime_actual_dif(date,time):
+    posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
+    actual_date = int(dt.datetime.now().timestamp())
+    return posix_date-actual_date
+
+
 # game_verification returns a dictonary with "previous" as previous results
 # and "actual" as actual results of secret friend
 def game_verification(json_name):
@@ -111,6 +117,7 @@ def secret_friend(json_name):
 
     #Create dic for json file
     group_data_results["randomcounter"] =  rand_count
+    group_data_results["state"] = "finished"
     group_data_results["results"] = secret_friends
     with open("data/"+json_name, "w") as json_file:
         json.dump(group_data_results,json_file)
