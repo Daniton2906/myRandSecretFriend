@@ -90,6 +90,10 @@ def join(bot, update, args):
     with open(path + filename) as json_file:
         data = json.load(json_file)
 
+    if data["state"] == "finished":
+        update.message.reply_text("Sorteo cerrado")
+        return
+
     if my_id not in data["members"]:
         data["members"].append(my_id)
         data["usernames"].append(username)
@@ -122,6 +126,10 @@ def leave(bot, update, args):
     data = {}
     with open(path + filename) as json_file:
         data = json.load(json_file)
+
+    if data["state"] == "finished":
+        update.message.reply_text("Sorteo cerrado")
+        return
 
     if my_id in data["members"]:
         idx = data["members"].index(my_id)
