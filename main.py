@@ -21,6 +21,10 @@ while (correct == 0):
     time = raw_input("Ingresa la nueva fecha en formato hh:mm :")
 
 # TODO verificacion de formato
+# TODO zona horaria
+
+# fecha formato posix
+posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
 content = requests.get(beacon_url)
 pulse = content.json()["pulse"]
 handle_json(pulse)
