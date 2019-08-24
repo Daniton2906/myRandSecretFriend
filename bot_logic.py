@@ -36,6 +36,26 @@ def time_verification(time):
     except:
        return False
 
+# game_verification returns a dictonary with "previous" as previous results
+# and "actual" as actual results of secret friend
+def game_verification(json_name):
+    # Open json file with all data and saved previous result
+    with open("data/"+json_name) as json_file:
+        group_data = json.load(json_file)
+
+    previous_results = group_data["results"][:]
+
+    # Recreate secret friend game again
+    secret_friend(json_name)
+
+    # Take actual result
+    with open("data/"+json_name) as json_file:
+        group_data = json.load(json_file)
+
+    actual_results = group_data["results"][:]
+
+    return {"previous":previous_results, "actual": actual_results}
+
 
 def secret_friend(json_name):
     # Open json file with all data
