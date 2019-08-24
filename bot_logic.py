@@ -5,7 +5,7 @@ import json
 import copy
 
 
-# Date verification
+# Date verification with user
 def user_verification(date, time):
     correct = 0
     while (correct == 0):
@@ -16,6 +16,7 @@ def user_verification(date, time):
         date = input("Ingresa la nueva fecha en formato dd-mm-aaaa:")
         time = input("Ingresa la nueva fecha en formato hh:mm :")
 
+# Format date verification
 def date_verification(date):
     try:
        fecha = dt.datetime.strptime(date, '%d-%m-%Y')
@@ -23,6 +24,7 @@ def date_verification(date):
     except:
        return False
 
+# Format time verification
 def time_verification(time):
     try:
        fecha = dt.datetime.strptime(time, '%H:%M')
@@ -30,6 +32,7 @@ def time_verification(time):
     except:
        return False
 
+# datetime_actual_dif returns the difference between the given time and the real time
 def datetime_actual_dif(date,time):
     posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
     actual_date = int(dt.datetime.now().timestamp())
