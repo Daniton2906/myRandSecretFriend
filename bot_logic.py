@@ -30,6 +30,12 @@ def time_verification(time):
     except:
        return False
 
+def datetime_actual_dif(date,time):
+    posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
+    actual_date = int(dt.datetime.now().timestamp())
+    return posix_date-actual_date
+
+
 # game_verification returns a dictonary with "previous" as previous results
 # and "actual" as actual results of secret friend
 def game_verification(json_name):
