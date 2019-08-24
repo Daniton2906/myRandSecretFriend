@@ -2,8 +2,7 @@ from telegram.ext import Updater, CommandHandler
 import requests
 import re
 
-
-TOKEN = "943142793:AAGzV_GR4fcuh5o81Y67Gb9-oMQJOFIOOxk"
+from config.auth import TOKEN
 
 def get_url():
     contents = requests.get('https://random.dog/woof.json').json()
