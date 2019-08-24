@@ -29,7 +29,7 @@ def date_verification(date):
        return 0
 
 
-def date_verification(time):
+def time_verification(time):
     try:
        fecha = dt.datetime.strptime(time, '%H:%M')
        return 1
