@@ -4,9 +4,6 @@ import random
 import json
 import copy
 
-# initial date given by the user
-date = "20-06-2020"
-time = "20:00"
 
 # Date verification
 def user_verification(date, time):
@@ -19,15 +16,12 @@ def user_verification(date, time):
         date = input("Ingresa la nueva fecha en formato dd-mm-aaaa:")
         time = input("Ingresa la nueva fecha en formato hh:mm :")
 
-# TODO zona horaria
-
 def date_verification(date):
     try:
        fecha = dt.datetime.strptime(date, '%d-%m-%Y')
        return True
     except:
        return False
-
 
 def time_verification(time):
     try:
@@ -55,6 +49,21 @@ def game_verification(json_name):
     actual_results = group_data["results"][:]
 
     return {"previous":previous_results, "actual": actual_results}
+
+def get_friend(json_name, user):
+    # Open json file with all data
+    with open("data/"+json_name) as json_file:
+        group_data = json.load(json_file)
+
+    # Search for friend in results pairs list
+    for i in range(0, len(group_data["results"])):
+        if group_data["results"][i][0] == user:
+            # Search friend tag and return
+            friend = group_data["results"][i][1]
+            index = group_data["members"].index(friend)
+            return group_data["usernames"][index]
+
+    return ""
 
 
 def secret_friend(json_name):
