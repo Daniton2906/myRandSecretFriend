@@ -25,6 +25,9 @@ while (correct == 0):
 
 # fecha formato posix
 posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
+
+# Get pulse generated
+beacon_url = "https://beacon.clcert.cl/beacon/2.0/pulse/" + str(posix_date)
 content = requests.get(beacon_url)
 pulse = content.json()["pulse"]
 handle_json(pulse)
