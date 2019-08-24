@@ -250,7 +250,8 @@ def verify(bot, update, args):
     with open(path + filename) as json_file:
         data = json.load(json_file)
     update.message.reply_text(f'Para replicar el sorteo: \n Nro de llamadas a random: {data["randomcounter"]} \n ' +
-                              f'Miembros: {" ".join([u for u in data["usernames"]])} \n Seed: {data["seed"]}')
+                              f'Miembros: {" ".join([u for u in data["usernames"]])} \n Fecha sorteo: {data["date"]} {data["time"]}' +
+                              f'\n Seed: {data["seed"]}')
 
 
 def get_secret_friend(bot, job):
