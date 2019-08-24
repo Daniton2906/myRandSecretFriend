@@ -15,7 +15,7 @@ from config.auth import TOKEN
 
 import logging
 
-from bot_logic import secret_friend, get_friend, date_verification, time_verification
+from bot_logic import secret_friend, get_friend, date_verification, time_verification, datetime_actual_dif
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -47,6 +47,10 @@ def create(bot, update, args, chat_data, job_queue):
         if not time_verification(time):
             update.message.reply_text(f'Formato incorrecto {time}, deberia ser HH-MM!')
             return
+        time_to_due = datetime_actual_dif(due, time)
+        if time_to_due < 0:
+            update.message.reply_text("No se puede volver al pasado :'(!")
+            return
         path = "data/"
 
         if not os.path.exists(path):
@@ -62,7 +66,7 @@ def create(bot, update, args, chat_data, job_queue):
         with open(path + filename, 'w') as outfile:
             json.dump(new_dict, outfile)
 
-        new_job = job_queue.run_once(get_secret_friend, 10, context=chat_id)
+        new_job = job_queue.run_once(get_secret_friend, time_to_due, context=chat_id)
         update.message.reply_text(f'Grupo creado existosamente! El sorteo se hara el {due}')
 
     except (IndexError, ValueError):
@@ -175,7 +179,7 @@ def test_secret_friend(bot, update, args, chat_data, job_queue):
     logger.info('He recibido un comando test')
     chat_id = update.message.chat_id
     new_id = abs(chat_id)
-    new_job = job_queue.run_once(get_secret_friend, 10, context=chat_id)
+    new_job = job_queue.run_once(get_secret_friend, 0, context=chat_id)
     update.message.reply_text('Esperando para correr!')
 
 def get_id(bot, update, args):
