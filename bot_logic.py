@@ -117,6 +117,7 @@ def secret_friend(json_name):
 
     #Create dic for json file
     group_data_results["randomcounter"] =  rand_count
+    group_data_results["state"] = "finished"
     group_data_results["results"] = secret_friends
     with open("data/"+json_name, "w") as json_file:
         json.dump(group_data_results,json_file)
