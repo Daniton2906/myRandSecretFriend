@@ -22,14 +22,6 @@ logging.basicConfig(level=logging.INFO,
 
 logger = logging.getLogger('RandSecretFriend')
 
-
-
-def validate(date_text):
-    try:
-        datetime.datetime.strptime(date_text, '%d-%m-%Y')
-    except ValueError:
-        raise ValueError("Incorrect data format, should be DD-MM-YYYY")
-
 def create(bot, update, args, chat_data, job_queue):
     logger.info('He recibido un comando create')
     """Add a job to the queue."""
@@ -67,7 +59,7 @@ def create(bot, update, args, chat_data, job_queue):
             json.dump(new_dict, outfile)
 
         new_job = job_queue.run_once(get_secret_friend, time_to_due, context=chat_id)
-        update.message.reply_text(f'Grupo creado existosamente! El sorteo se hara el {due}')
+        update.message.reply_text(f'Grupo creado existosamente! El sorteo se hara el {due} a las {time}')
 
     except (IndexError, ValueError):
         update.message.reply_text('Uso: /create <DD-MM-YYYY> <HH-MM>')
@@ -156,13 +148,19 @@ def finish(bot, update, args):
     else:
         update.message.reply_text(f'El grupo ya está cerrado (sorteo el {date}) >:|')
 
-def get_id(bot, update, args):
+def get_group_id(bot, update, args):
     logger.info('He recibido un comando getId')
     # print(update.message)
 
     chat_id = update.message.chat_id
     message_dict = update.message.to_dict()
-    update.message.reply_text(f'El id del grupo es {abs(chat_id)} :)')
+    my_id = message_dict['from']['id']
+    username = message_dict['from']['username']
+
+    if chat_id == my_id:
+        update.message.reply_text(f'Pregunta por el grupo pls :o')
+    else:
+        update.message.reply_text(f'El id del grupo es {abs(chat_id)} :)')
 
 def get_friend_username(bot, update, args):
     logger.info('He recibido un comando getFriend')
@@ -229,7 +227,7 @@ def get_secret_friend(bot, job):
     with open("data/" + filename) as json_file:
         data = json.load(json_file)
         #if dt.datetime.now() >= dt.datetime.strptime(data["date"] + " " + data["time"], '%d-%m-%Y %H:%M'):
-        if data["members"] > 1:
+        if len(data["members"]) > 1:
             run_secret_friend = True
     if run_secret_friend:
         job.schedule_removal()
@@ -246,6 +244,41 @@ def test_secret_friend(bot, update, args, chat_data, job_queue):
     new_job = job_queue.run_once(get_secret_friend, 0, context=chat_id)
     update.message.reply_text('Esperando para correr!')
 
+def save(bot, update, args):
+    logger.info('He recibido un comando save')
+
+    #try:
+    nfilename = args[0]
+    chat_id = update.message.chat_id
+    message_dict = update.message.to_dict()
+    my_id = message_dict['from']['id']
+    username = message_dict['from']['username']
+
+    if my_id == chat_id:
+        update.message.reply_text(f"Nada que guardar por aqui")
+        return
+
+    path = "data/"
+    group_id = abs(chat_id)
+
+    filename = f"group_{group_id}.json"
+    new_filename = f"{nfilename}.json"
+
+    if os.path.exists(path + new_filename):
+        update.message.reply_text(f"Archivo {new_filename} ya existe")
+        return
+
+    data = {}
+    with open(path + filename) as json_file:
+        with open(path + new_filename, "w") as outfile:
+            data = json.load(json_file)
+            json.dump(data, outfile)
+    update.message.reply_text(f"Grupo guardado en {new_filename}")
+
+    #except (IndexError, ValueError):
+    #    update.message.reply_text('Uso: /save <filename>')
+
+
 def main():
     logger.info('Bot inicializado')
     updater = Updater(TOKEN)
@@ -258,10 +291,11 @@ def main():
     dp.add_handler(CommandHandler('leave', leave, pass_args=True))
     dp.add_handler(CommandHandler('finish', finish, pass_args=True))
     dp.add_handler(CommandHandler('forcerun', test_secret_friend, pass_args=True, pass_chat_data=True, pass_job_queue=True))
-    dp.add_handler(CommandHandler('getId', get_id, pass_args=True))
+    dp.add_handler(CommandHandler('getGroupId', get_group_id, pass_args=True))
     dp.add_handler(CommandHandler('getFriend', get_friend_username, pass_args=True))
     dp.add_handler(CommandHandler('list', list_members, pass_args=True))
     dp.add_handler(CommandHandler('verify', verify, pass_args=True))
+    dp.add_handler(CommandHandler('save', save, pass_args=True))
 
     updater.start_polling()
     updater.idle()
