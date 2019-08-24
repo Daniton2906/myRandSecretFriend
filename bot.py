@@ -29,6 +29,10 @@ def create(bot, update, args, chat_data, job_queue):
     message_dict = update.message.to_dict()
     my_id = message_dict['from']['id']
     username = message_dict['from']['username']
+
+    if my_id == chat_id:
+        update.message.reply_text(f'No se puede crear un grupo aqui')
+        return
     try:
         # args[0] should contain the time for the timer in seconds
         due = args[0]
@@ -73,6 +77,10 @@ def join(bot, update, args):
     my_id = message_dict['from']['id']
     username = message_dict['from']['username']
 
+    if chat_id == my_id:
+        update.message.reply_text(f'Este no es un grupo m3n')
+        return
+
     path = "data/"
     group_id = abs(chat_id)
 
@@ -101,6 +109,10 @@ def leave(bot, update, args):
     my_id = message_dict['from']['id']
     username = message_dict['from']['username']
 
+    if chat_id == my_id:
+        update.message.reply_text(f'Este no es un grupo m3n')
+        return
+
     path = "data/"
     group_id = abs(chat_id)
 
@@ -128,6 +140,13 @@ def finish(bot, update, args):
     # print(update.message)
 
     chat_id = update.message.chat_id
+    message_dict = update.message.to_dict()
+    my_id = message_dict['from']['id']
+    username = message_dict['from']['username']
+
+    if chat_id == my_id:
+        update.message.reply_text(f'Este no es un grupo m3n')
+        return
 
     path = "data/"
     group_id = abs(chat_id)
@@ -196,12 +215,14 @@ def list_members(bot, update, args):
     group_id = abs(chat_id)
 
     filename = f"group_{group_id}.json"
-    # new_dict = {"id": new_id, "members": [my_id], "date" : due, "time": "00:00", "format": "utc", "state": "pending", "results": []}
 
     data = {}
     with open(path + filename) as json_file:
         data = json.load(json_file)
-    update.message.reply_text("\n".join(data["usernames"]))
+    if chat_id == my_id:
+        update.message.reply_text("Not a grupo")
+    else:
+        update.message.reply_text("\n".join(data["usernames"]))
 
 
 def verify(bot, update, args):
@@ -209,6 +230,11 @@ def verify(bot, update, args):
 
     chat_id = update.message.chat_id
     message_dict = update.message.to_dict()
+    my_id = message_dict['from']['id']
+
+    if chat_id == my_id:
+        update.message.reply_text("Not a grupo")
+        return
     path = "data/"
     group_id = abs(chat_id)
     filename = f"group_{group_id}.json"
