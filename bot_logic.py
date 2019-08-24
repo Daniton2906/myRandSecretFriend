@@ -24,17 +24,17 @@ while (correct == 0):
 def date_verification(date):
     try:
        fecha = dt.datetime.strptime(date, '%d-%m-%Y')
-       return 1
+       return True
     except:
-       return 0
+       return False
 
 
 def time_verification(time):
     try:
        fecha = dt.datetime.strptime(time, '%H:%M')
-       return 1
+       return True
     except:
-       return 0
+       return False
 
 
 def secret_friend(json_name):
