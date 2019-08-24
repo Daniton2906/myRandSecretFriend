@@ -62,7 +62,7 @@ def create(bot, update, args, chat_data, job_queue):
         with open(path + filename, 'w') as outfile:
             json.dump(new_dict, outfile)
 
-        new_job = job_queue.run_once(get_secret_friend, 10, context=chat_id)
+        new_job = job_queue.run_repeating(get_secret_friend, 10, context=chat_id)
         update.message.reply_text(f'Grupo creado existosamente! El sorteo se hara el {due}')
 
     except (IndexError, ValueError):
@@ -226,6 +226,20 @@ def list_members(bot, update, args):
     update.message.reply_text("\n".join(data["usernames"]))
 
 
+def verify(bot, update, args):
+    logger.info('He recibido un comando verify')
+
+    chat_id = update.message.chat_id
+    message_dict = update.message.to_dict()
+    path = "data/"
+    group_id = abs(chat_id)
+    filename = f"group_{group_id}.json"
+    data = {}
+    with open(path + filename) as json_file:
+        data = json.load(json_file)
+    update.message.reply_text(f'Para replicar el sorteo: \n Nro de llamadas a random: {data["randomcounter"]} \n ' +
+                              f'Miembros: {" ".join([u for u in data["usernames"]])} \n Seed: {data["seed"]}')
+
 def main():
     logger.info('Bot inicializado')
     updater = Updater(TOKEN)
@@ -237,10 +251,12 @@ def main():
     dp.add_handler(CommandHandler('join', join, pass_args=True))
     dp.add_handler(CommandHandler('leave', leave, pass_args=True))
     dp.add_handler(CommandHandler('finish', finish, pass_args=True))
-    dp.add_handler(CommandHandler('test', test_secret_friend, pass_args=True, pass_chat_data=True, pass_job_queue=True))
+    dp.add_handler(CommandHandler('forcerun', test_secret_friend, pass_args=True, pass_chat_data=True, pass_job_queue=True))
     dp.add_handler(CommandHandler('getId', get_id, pass_args=True))
     dp.add_handler(CommandHandler('getFriend', get_friend_username, pass_args=True))
     dp.add_handler(CommandHandler('list', list_members, pass_args=True))
+    dp.add_handler(CommandHandler('verify', verify, pass_args=True))
+
     updater.start_polling()
     updater.idle()
 
