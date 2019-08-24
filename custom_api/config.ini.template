@@ -1,0 +1,31 @@
+SECRET_KEY = 'uCVi_\xdcwe\x07\xbe?\xcb\xa6\xbc\xcf'
+HOST = '0.0.0.0'
+PORT = 8080
+WORKERS = 16
+TIMEOUT = 60
+MAX_REQUESTS = 20
+EXAMS_BATCH_SIZE = 101
+EXAMS_BATCH_LIMIT = 5000
+DEBUG = True
+MONGODB_SETTINGS = [
+   {
+    'db' : 'test',
+    'host' : 'localhost'
+   }
+]
+
+# Flask-Restplus settings
+RESTPLUS_SWAGGER_UI_DOC_EXPANSION = 'list'
+RESTPLUS_VALIDATE = True
+RESTPLUS_MASK_SWAGGER = False
+RESTPLUS_ERROR_404_HELP = False
+SHOW_DOCUMENTATION = True
+
+# Config flask-mail settings https://pythonhosted.org/Flask-Mail/
+
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USE_SSL = False
+MAIL_USERNAME = 'example@gmail.com'
+MAIL_PASSWORD = 'Password'
