@@ -18,8 +18,24 @@ while (correct == 0):
     date = input("Ingresa la nueva fecha en formato dd-mm-aaaa:")
     time = input("Ingresa la nueva fecha en formato hh:mm :")
 
-# TODO date format verification
+
 # TODO zona horaria
+
+def date_verification(date):
+    try:
+       fecha = dt.datetime.strptime(date, '%d-%m-%Y')
+       return 1
+    except:
+       return 0
+
+
+def date_verification(time):
+    try:
+       fecha = dt.datetime.strptime(time, '%H:%M')
+       return 1
+    except:
+       return 0
+
 
 def secret_friend(json_name):
     # Open json file with all data
