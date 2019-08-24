@@ -156,32 +156,6 @@ def finish(bot, update, args):
     else:
         update.message.reply_text(f'El grupo ya está cerrado (sorteo el {date}) >:|')
 
-def get_secret_friend(bot, job):
-    print("helo")
-    """Send the alarm message."""
-    group_id = abs(job.context)
-    filename = f"group_{group_id}.json"
-    run_secret_friend = False
-    with open("data/" + filename) as json_file:
-        data = json.load(json_file)
-        #if dt.datetime.now() >= dt.datetime.strptime(data["date"] + " " + data["time"], '%d-%m-%Y %H:%M'):
-        if data["members"] > 1:
-            run_secret_friend = True
-    if run_secret_friend:
-        job.schedule_removal()
-        secret_friend(filename)
-        bot.send_message(job.context, text='Amikes secretos asignados!')
-    else:
-        bot.send_message(job.context, text='No hay suficiente personas :(')
-
-
-def test_secret_friend(bot, update, args, chat_data, job_queue):
-    logger.info('He recibido un comando test')
-    chat_id = update.message.chat_id
-    new_id = abs(chat_id)
-    new_job = job_queue.run_once(get_secret_friend, 0, context=chat_id)
-    update.message.reply_text('Esperando para correr!')
-
 def get_id(bot, update, args):
     logger.info('He recibido un comando getId')
     # print(update.message)
@@ -245,6 +219,32 @@ def verify(bot, update, args):
         data = json.load(json_file)
     update.message.reply_text(f'Para replicar el sorteo: \n Nro de llamadas a random: {data["randomcounter"]} \n ' +
                               f'Miembros: {" ".join([u for u in data["usernames"]])} \n Seed: {data["seed"]}')
+
+
+def get_secret_friend(bot, job):
+    """Send the alarm message."""
+    group_id = abs(job.context)
+    filename = f"group_{group_id}.json"
+    run_secret_friend = False
+    with open("data/" + filename) as json_file:
+        data = json.load(json_file)
+        #if dt.datetime.now() >= dt.datetime.strptime(data["date"] + " " + data["time"], '%d-%m-%Y %H:%M'):
+        if data["members"] > 1:
+            run_secret_friend = True
+    if run_secret_friend:
+        job.schedule_removal()
+        secret_friend(filename)
+        bot.send_message(job.context, text='Amikes secretos asignados!')
+    else:
+        bot.send_message(job.context, text='No hay suficiente personas :(')
+
+
+def test_secret_friend(bot, update, args, chat_data, job_queue):
+    logger.info('He recibido un comando test')
+    chat_id = update.message.chat_id
+    new_id = abs(chat_id)
+    new_job = job_queue.run_once(get_secret_friend, 0, context=chat_id)
+    update.message.reply_text('Esperando para correr!')
 
 def main():
     logger.info('Bot inicializado')
