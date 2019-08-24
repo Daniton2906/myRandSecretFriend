@@ -1,11 +1,8 @@
 import requests
 import datetime as dt
-
-def handle_json(data):
-    print(data)
-
-# users list
-amigos = ['a', 'b', 'c', 'd', 'e']
+import random
+import json
+import copy
 
 # initial date given by the user
 date = "20-06-2020"
@@ -24,12 +21,47 @@ while (correct == 0):
 # TODO date format verification
 # TODO zona horaria
 
-# Date in posix format
-posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
+def secret_friend(json_name):
+    # Open json file with all data
+    with open("data/"+json_name) as json_file:
+        group_data = json.load(json_file)
 
-# Get pulse generated
-beacon_url = "https://beacon.clcert.cl/beacon/2.0/pulse/" + str(posix_date)
-content = requests.get(beacon_url)
-pulse = content.json()["pulse"]
+    # new dict for new data
+    group_data_results = copy.deepcopy(group_data)
 
-handle_json(pulse)
+    # users list, date and time from json file
+    friends = group_data["members"][:]
+    date = group_data["date"]
+    time = group_data["time"]
+
+    # Date in posix format
+    posix_date = int(dt.datetime.strptime('{d} {t}'.format(d=date, t=time), '%d-%m-%Y %H:%M').timestamp())
+
+    # Get pulse generated
+    beacon_url = "https://beacon.clcert.cl/beacon/2.0/pulse/time/" + str(posix_date)
+    content = requests.get(beacon_url)
+    pulse = content.json()["pulse"]
+
+    # Save seed in dict data
+    group_data_results["seed"] = pulse['outputValue']
+
+    # Set seed
+    random.seed(pulse['outputValue'])
+
+    # Create matches for secret friends
+    secret_friends = []
+    friends_total = len(group_data["members"])
+    for i in range(0,friends_total):
+        if (i == friends_total-2) and (group_data["members"][friends_total-1] in friends):
+            index = len(friends)-1
+        else:
+            index = random.randint(0,len(friends)-1)
+            while (friends[index]==group_data["members"][i]):
+                index = random.randint(0,len(friends)-1)
+        pair = [group_data["members"][i], friends.pop(index)]
+        secret_friends.append(pair)
+
+    #Create dic for json file
+    group_data_results["results"] = secret_friends
+    with open("data/"+json_name, "w") as json_file:
+        json.dump(group_data_results,json_file)
