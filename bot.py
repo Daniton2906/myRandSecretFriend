@@ -15,7 +15,7 @@ from config.auth import TOKEN
 
 import logging
 
-from bot_logic import secret_friend
+from bot_logic import secret_friend, get_friend, date_verification, time_verification
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -40,8 +40,12 @@ def create(bot, update, args, chat_data, job_queue):
     try:
         # args[0] should contain the time for the timer in seconds
         due = args[0]
-        if validate(due):
+        time = args[1]
+        if not date_verification(due):
             update.message.reply_text(f'Formato incorrecto {due}, deberia ser DD-MM-YYYY!')
+            return
+        if not time_verification(time):
+            update.message.reply_text(f'Formato incorrecto {time}, deberia ser HH-MM!')
             return
         path = "data/"
 
@@ -53,7 +57,7 @@ def create(bot, update, args, chat_data, job_queue):
 
         new_id = abs(chat_id)  # random.randint(1, 1000000000) # uuid.uuid4()
         filename = f"group_{new_id}.json"
-        new_dict = {"id": new_id, "members": [my_id], "usernames": [username], "date": due, "time": "00:00", "format": "utc", "state": "pending", "results": []}
+        new_dict = {"id": new_id, "members": [my_id], "usernames": [username], "date": due, "time": time, "format": "utc", "state": "pending", "results": []}
 
         with open(path + filename, 'w') as outfile:
             json.dump(new_dict, outfile)
@@ -62,11 +66,11 @@ def create(bot, update, args, chat_data, job_queue):
         update.message.reply_text(f'Grupo creado existosamente! El sorteo se hara el {due}')
 
     except (IndexError, ValueError):
-        update.message.reply_text('Uso: /create <DD-MM-YYYY>')
+        update.message.reply_text('Uso: /create <DD-MM-YYYY> <HH-MM>')
 
 def join(bot, update, args):
     logger.info('He recibido un comando join')
-    print(update.message)
+    # print(update.message)
 
     chat_id = update.message.chat_id
     message_dict = update.message.to_dict()
@@ -94,7 +98,7 @@ def join(bot, update, args):
 
 def leave(bot, update, args):
     logger.info('He recibido un comando leave')
-    print(update.message)
+    # print(update.message)
 
     chat_id = update.message.chat_id
     message_dict = update.message.to_dict()
@@ -125,7 +129,7 @@ def leave(bot, update, args):
 
 def finish(bot, update, args):
     logger.info('He recibido un comando leave')
-    print(update.message)
+    # print(update.message)
 
     chat_id = update.message.chat_id
 
@@ -155,7 +159,7 @@ def get_secret_friend(bot, job):
     run_secret_friend = False
     with open("data/" + filename) as json_file:
         data = json.load(json_file)
-        if dt.datetime.now() >= dt.datetime.strptime(data["date"], '%d-%m-%Y'):
+        if dt.datetime.now() >= dt.datetime.strptime(data["date"] + " " + data["time"], '%d-%m-%Y %H:%M'):
             run_secret_friend = True
     if run_secret_friend:
         job.schedule_removal()
@@ -166,6 +170,7 @@ def get_secret_friend(bot, job):
 
 
 def test_secret_friend(bot, update, args, chat_data, job_queue):
+    logger.info('He recibido un comando test')
     chat_id = update.message.chat_id
     new_id = abs(chat_id)
     new_job = job_queue.run_once(get_secret_friend, 10, context=chat_id)
@@ -173,31 +178,36 @@ def test_secret_friend(bot, update, args, chat_data, job_queue):
 
 def get_id(bot, update, args):
     logger.info('He recibido un comando getId')
-    print(update.message)
+    # print(update.message)
 
     chat_id = update.message.chat_id
     message_dict = update.message.to_dict()
     update.message.reply_text(f'El id del grupo es {abs(chat_id)} :)')
 
-def get_friend(bot, update, args):
-    logger.info('He recibido un comando getId')
-    print(update.message)
+def get_friend_username(bot, update, args):
+    logger.info('He recibido un comando getFriend')
+    # print(update.message)
 
-    chat_id = update.message.chat_id
-    message_dict = update.message.to_dict()
-    my_id = message_dict['from']['id']
-    username = message_dict['from']['username']
+    try:
+        group_id = args[0]
+        filename = f"group_{group_id}.json"
+        chat_id = update.message.chat_id
+        message_dict = update.message.to_dict()
+        my_id = message_dict['from']['id']
+        # username = message_dict['from']['username']
 
-    if chat_id == my_id:
-        # llamar funcion
-        my_friend = 0
-        update.message.reply_text(f'Tu amike secreto es {my_friend} :)')
-    else:
-        update.message.reply_text(f'Preguntamelo por interno :*')
+        if chat_id == my_id:
+            # llamar funcion
+            my_friend = get_friend(filename, my_id)
+            update.message.reply_text(f'Tu amike secreto es {my_friend} :)')
+        else:
+            update.message.reply_text(f'Preguntamelo por interno :*')
+    except (IndexError, ValueError):
+        update.message.reply_text('Uso: /getFriend <group_id>')
 
 def list_members(bot, update, args):
-    logger.info('He recibido un comando join')
-    print(update.message)
+    logger.info('He recibido un comando list')
+    # print(update.message)
 
     chat_id = update.message.chat_id
     message_dict = update.message.to_dict()
@@ -213,15 +223,7 @@ def list_members(bot, update, args):
     data = {}
     with open(path + filename) as json_file:
         data = json.load(json_file)
-
-    if my_id not in data["members"]:
-        data["members"].append(my_id)
-        with open(path + filename, 'w') as outfile:
-            json.dump(data, outfile)
-
-        update.message.reply_text(f'El usuario {username} ha sido añadido al grupo!')
-    else:
-        update.message.reply_text(f'El usuario {username} ya ha sido agregado >:|')
+    update.message.reply_text("\n".join(data["usernames"]))
 
 
 def main():
@@ -237,7 +239,8 @@ def main():
     dp.add_handler(CommandHandler('finish', finish, pass_args=True))
     dp.add_handler(CommandHandler('test', test_secret_friend, pass_args=True, pass_chat_data=True, pass_job_queue=True))
     dp.add_handler(CommandHandler('getId', get_id, pass_args=True))
-    dp.add_handler(CommandHandler('getFriend', get_friend, pass_args=True))
+    dp.add_handler(CommandHandler('getFriend', get_friend_username, pass_args=True))
+    dp.add_handler(CommandHandler('list', list_members, pass_args=True))
     updater.start_polling()
     updater.idle()
 
