@@ -9,15 +9,15 @@ date = "20-06-2020"
 time = "20:00"
 
 # Date verification
-correct = 0
-while (correct == 0):
-    numero = input("Desea realizar el sorteo en la fecha y hora siguientes?: \n" + date + " " + time + "\n")
-    correct = int(numero)
-    if (correct):
-        break
-    date = input("Ingresa la nueva fecha en formato dd-mm-aaaa:")
-    time = input("Ingresa la nueva fecha en formato hh:mm :")
-
+def user_verification(date, time):
+    correct = 0
+    while (correct == 0):
+        numero = input("Desea realizar el sorteo en la fecha y hora siguientes?: \n" + date + " " + time + "\n")
+        correct = int(numero)
+        if (correct):
+            break
+        date = input("Ingresa la nueva fecha en formato dd-mm-aaaa:")
+        time = input("Ingresa la nueva fecha en formato hh:mm :")
 
 # TODO zona horaria
 
