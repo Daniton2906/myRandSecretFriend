@@ -96,17 +96,21 @@ def secret_friend(json_name):
     # Create matches for secret friends
     secret_friends = []
     friends_total = len(group_data["members"])
+    rand_count = 0
     for i in range(0,friends_total):
         if (i == friends_total-2) and (group_data["members"][friends_total-1] in friends):
             index = len(friends)-1
         else:
             index = random.randint(0,len(friends)-1)
+            rand_count+=1
             while (friends[index]==group_data["members"][i]):
                 index = random.randint(0,len(friends)-1)
+                rand_count+=1
         pair = [group_data["members"][i], friends.pop(index)]
         secret_friends.append(pair)
 
     #Create dic for json file
+    group_data_results["randomcounter"] =  rand_count
     group_data_results["results"] = secret_friends
     with open("data/"+json_name, "w") as json_file:
         json.dump(group_data_results,json_file)
